@@ -1,0 +1,381 @@
+clc;
+close all;
+clear variables;
+%Written in Matlab
+passengerData = readtable('passengers.csv')
+passengerSex = passengerData.sex;
+passengerSurvival = passengerData.survived;
+
+% Produce a logical type ('true' or 'false') list indicating those who survived
+survivors = (passengerSurvival == 1);
+
+sexOfNonSurvivors = passengerSex(~survivors); %Sex of those who did not survive
+maleNonSurvivors = strcmp(sexOfNonSurvivors,'male'); % Male who did not survive
+
+sexOfSurvivors = passengerSex(survivors); % Sex of those who survided
+maleSurvivors = strcmp(sexOfSurvivors,'male'); % Male Survivors
+nMaleSurvivors = sum(maleSurvivors); % Number of the male - Survivors
+nFemaleSurvivors = sum(~maleSurvivors); % Number of the female - Survivors
+pie([nMaleSurvivors,nFemaleSurvivors]);
+legend('Male','Female','location',"eastoutside")
+title('Chart 1. Gender Split of Survivors')
+
+totalFemalePassengers = nnz(strcmp(passengerData.sex,'female'))
+totalMalePassengers = nnz(strcmp(passengerData.sex,'male'))
+pie([totalMalePassengers,totalFemalePassengers])
+legend("Male",'Female','location',"eastoutside")
+title("Chart2.Gender Split of All Passengers")
+
+nMaleNonSurvivors = sum(maleNonSurvivors); %Number of male non-survivors
+nFemaleNonSurvivors = sum(~maleNonSurvivors);
+nSurvivors = nnz(survivors)
+
+
+nNonSurvivors = nnz(~survivors)
+pie([nSurvivors,nNonSurvivors]);
+legend('Survivors','Non-Survivors','location',"eastoutside")
+title('Chart 3. Survivor and Non Survivor Proportion')
+
+% Additional Pie Charts to Observe Survivors and Non-Survivors (according to the distribution of the sexes within themselves)
+pie([nMaleSurvivors,nMaleNonSurvivors]);
+legend('Survivors','Non-Survivors','location',"eastoutside")
+title('Chart 4. Survivors and Non-Survivors in Male Passangers')
+
+pie([nFemaleSurvivors,nFemaleNonSurvivors]);
+legend('Survivors','Non-Survivors','location',"eastoutside")
+title('Chart 5. Survivors and Non-Survivors in Female Passangers')
+
+tempFirstClassAndNSurvivor = passengerData(~survivors,:).pclass == 1;  %First Class and Non-Survivors
+maleFirstClassPie = nnz(strcmp(passengerData(tempFirstClassAndNSurvivor,:).sex,'male')); %First Class and Non-Survivors(males)
+femaleFirstClassPie =  nnz(strcmp(passengerData(tempFirstClassAndNSurvivor,:).sex,'female')); %First Class and Non-Survivors(females)
+tempSecondClassAndNSurvivor = passengerData(~survivors,:).pclass == 2;%Second Class and Non-Survivors
+maleSecondClassPie = nnz(strcmp(passengerData(tempSecondClassAndNSurvivor,:).sex,'male'));
+femaleSecondClassPie = nnz(strcmp(passengerData(tempSecondClassAndNSurvivor,:).sex,'female'));
+tempThirdClassAndNSurvivor = passengerData(~survivors,:).pclass == 3; %Third Class and Non-Survivors
+maleThirdClassPie = nnz(strcmp(passengerData(tempThirdClassAndNSurvivor,:).sex,'male'));
+femaleThirdClassPie = nnz(strcmp(passengerData(tempThirdClassAndNSurvivor,:).sex,'female'));
+figure,
+subplot(311)
+pie([maleFirstClassPie,femaleFirstClassPie]);
+legend('Male','Female','location',"eastoutside")
+title('Chart 7. First Class Non-Survivor Gender Split')
+subplot(312)
+pie([maleSecondClassPie,femaleSecondClassPie]);
+legend('Male','Female','location',"eastoutside")
+title('Chart 8. Second Class Non-Survivor Gender Split')
+subplot(313)
+pie([maleThirdClassPie,femaleThirdClassPie]);
+legend('Male','Female','location',"eastoutside")
+title('Chart 9. Third Class Non-Survivor Gender Split')
+
+firstClassNonSurvivorBar = nnz(passengerData(~survivors,:).pclass == 1)/nnz(passengerData.pclass == 1); 
+secondClassNonSurvivorBar = nnz(passengerData(~survivors,:).pclass == 2)/nnz(passengerData.pclass == 2); 
+thirdClassNonSurvivorBar = nnz(passengerData(~survivors,:).pclass == 3)/nnz(passengerData.pclass == 3); 
+figure,
+barXaxis = categorical({'First Class','Second Class','ThirdClass'});
+barYaxis = [firstClassNonSurvivorBar,secondClassNonSurvivorBar,thirdClassNonSurvivorBar];
+bar(barXaxis,barYaxis);
+title('Chart 10. Proportion of Non Survivors to Survivors')
+ylabel('Proportion')
+
+passengerAges = passengerData.age; % Ages of the total passengers
+survivorsAges = passengerAges(survivors); % Ages of the survivors
+nonSurvivorsAges = passengerAges(~survivors); % Ages of the Non-Survivors
+figure,
+subplot(121)
+histogram(survivorsAges)
+title('Histogram 1. Age of Survivors')
+xlabel('Ages')
+ylabel('Number of People')
+subplot(122)
+histogram(nonSurvivorsAges)
+title('Histogram 2. Age of Non-Survivors')
+ylabel('Number of People')
+xlabel('Ages')
+
+nanAgeArray = isnan(passengerAges) ; % NaN values in ages
+firstClassProp = nnz((passengerData.pclass == 1 ) & (nanAgeArray == 1)) / nnz((passengerData.pclass == 1 )) % Proportion of Nan-Age Values in first class
+
+
+nanAgeArray = isnan(passengerAges) ; % NaN values in ages
+firstClassProp = nnz((passengerData.pclass == 1 ) & (nanAgeArray == 1)) / nnz((passengerData.pclass == 1 )) % Proportion of Nan-Age Values in first class
+
+passengerData_av = passengerData; 
+%{
+Note :THIS PIECE OF CODE GIVES THE AVERAGE OF THE COL WITHOUT ANY
+RELATIONSHIP 
+embarkedTypes = categorical(passengerData_av.embarked)
+[n, m] = size(passengerData)
+nanNumberofAge = 0;
+nanNumberofFare = 0;
+nanNumberofEmbarked = 0;
+for colIdx = 1:m
+    for rowIdx = 1:n
+        
+   if (passengerData_av.Properties.VariableNames{colIdx} == "age" )
+      if(isnan(passengerData_av.age(rowIdx)))
+          passengerData_av.age(rowIdx) = nanmean(passengerData_av.age);
+          nanNumberofAge = nanNumberofAge + 1; 
+      end
+   end
+
+%AGE AVERAGE -------------> 29.91
+   
+   if (passengerData_av.Properties.VariableNames{colIdx} == "fare" )
+      if(isnan(passengerData_av.fare(rowIdx)))
+          passengerData_av.fare(rowIdx) = nanmean((passengerData_av.fare));
+          nanNumberofFare = nanNumberofFare + 1;
+          flagFareRw = rowIdx;
+          flagFareCl = colIdx;
+      end
+   end
+%FARE AVERAGE -----------> 33.6085
+    
+   if (passengerData_av.Properties.VariableNames{colIdx} == "embarked" )
+      if(~(passengerData_av.embarked(rowIdx) == embarkedTypes))
+          passengerData_av.embarked(rowIdx) =cellstr(mode(embarkedTypes));
+          nanNumberofEmbarked = nanNumberofEmbarked + 1;
+          flagEmbarkedRw = rowIdx;
+          flagEmbarkedCl = colIdx;
+      end
+   end
+%EMBARKED -----------> 'S'
+    end
+end
+nanNumberofAge 
+nanNumberofFare
+nanNumberofEmbarked
+passengerData_av 
+%}
+
+
+% We can make relations like (EMBARKED,HOME DEST),
+% (FARE,AGE,CLASS),
+
+[n, m] = size(passengerData_av); % n = row , m = col
+isNanAgeArray = isnan(passengerData_av.age); % Nan-Values in Age 
+isNanFareArray = isnan(passengerData_av.fare); % Nan-Values in Fare
+isNanEmbarkedArray = isnan(passengerData_av.fare); % Nan-Values in Embarked
+
+isNanAgeTable = passengerData_av(isNanAgeArray,:); % The table consists of datas that is NaN Age
+isNanAgeTable = removevars(isNanAgeTable,{'name','cabin','body','embarked','ticket'}); % Removing unnecessary datas
+spareAverageTable =  passengerData_av(~isNanAgeArray,:); % The table consists of datas that is not Nan-Age 
+spareAverageTable = removevars(spareAverageTable,{'name','cabin','body','embarked','ticket'}) ;
+[rowNanAge,colNanAge] = size(isNanAgeTable) ;
+[rowSpareAv,colSpareAv] = size(spareAverageTable);
+% This piece of code looking the other datas and checking if there are some similar
+% attributes in other datas that can be also seen in our missing age data, if it find similarities it earns weighted points 
+% The person's age who is the most related with our nan-age-person is
+% assaigned to our missing data.
+
+relationPoint = 0 ; 
+relationPointMatrix = zeros(rowNanAge,rowSpareAv); % Will contain all relationpoints according to index number row gives the nan index ,coloumbs gives the relationships
+for iNanr = 1:1:rowNanAge
+    for iNanc = 1:1:rowSpareAv
+        
+        if(isNanAgeTable.pclass(iNanr) == spareAverageTable.pclass(iNanc)) % Class
+            relationPoint = relationPoint + 1 ;
+        end
+        
+        if(isNanAgeTable.survived(iNanr) == spareAverageTable.survived(iNanc)) %Survived 
+            relationPoint = relationPoint + 1 ;
+        end
+        
+        if(isNanAgeTable.fare(iNanr) == spareAverageTable.fare(iNanc)) %Fare
+            relationPoint = relationPoint + 1 ;
+        end
+        
+ flagEmbarkedCategories = categories(categorical(passengerData_av.embarked));
+% This piece of code make a relationship between embarked and
+% home_destination. I tought like they tend to embark at same location if
+% they come same home_dest. Unfortunatelly our only missing data home
+% destination is unique. So I used also mode() for that option. I think we
+% can also fill home_dest using embarked data. It is kind of crossing(Probably there is no term like that :) ) 
+% It is also effective due to fact that there are some relatives coming
+% from same home_dest and probably they used same location for embark.
+embarkedCategoricalMatrix = categorical(passengerData_av.embarked);
+innerC = 1;
+innerQ = 1;
+innerS = 1;
+
+for counter = 1:1:n
+        if(categorical(flagEmbarkedCategories(1)) == embarkedCategoricalMatrix(counter))
+        homeDestinationCArray(innerC) = passengerData_av.home_dest(counter);
+        innerC = innerC + 1;
+        end
+
+        if(categorical(flagEmbarkedCategories(2)) == embarkedCategoricalMatrix(counter))
+        homeDestinationQArray(innerQ) = passengerData_av.home_dest(counter);
+        innerQ = innerQ + 1;
+        end
+    
+        if(categorical(flagEmbarkedCategories(3)) == embarkedCategoricalMatrix(counter))
+        homeDestinationSArray(innerS) = passengerData_av.home_dest(counter);
+        innerS = innerS + 1;
+        end
+end
+
+homePointC  = 0;
+homePointQ = 0;
+homePointS = 0;
+for colIdx = 1:m
+    for rowIdx = 1:n
+        if (passengerData_av.Properties.VariableNames{colIdx} == "embarked" )
+            if(~(passengerData_av.embarked(rowIdx) == embarkedCategoricalMatrix))
+                
+               homePointC = nnz(categorical(passengerData_av.home_dest(rowIdx)) == homeDestinationCArray(1,:));
+               homePointQ = nnz(categorical(passengerData_av.home_dest(rowIdx)) == homeDestinationQArray(1,:));
+               homePointS = nnz(categorical(passengerData_av.home_dest(rowIdx)) == homeDestinationSArray(1,:));
+               flagEmbarkedRw = rowIdx
+               flagEmbarkedCl = colIdx
+               if((homePointC + homePointQ + homePointS) == 0)
+                 passengerData_av.embarked(rowIdx) =cellstr(mode(embarkedCategoricalMatrix));
+               
+               
+               elseif(homePointC >= homePointQ && homePointC >= homePointS)
+                 passengerData_av.embarked(rowIdx) = cellstr('C');
+         
+         
+               elseif(homePointS >= homePointQ && homePointS >= homePointC)
+                 passengerData_av.embarked(rowIdx) = cellstr('S');
+               
+                
+               else
+                 passengerData_av.embarked(rowIdx) = cellstr('Q');
+               end
+            end
+           
+       end
+       
+    end
+end
+passengerData_av(flagEmbarkedRw,flagEmbarkedCl)
+
+
+%Detection of the Prices according the class and age
+firstClassChildPrice = 0; firstClassChildPriceCounter = 0;
+firstClassRegularPrice = 0; firstClassRegularPriceCounter = 0;
+secondClassChildPrice  = 0; secondClassChildPriceCounter = 0;
+secondClassRegularPrice = 0; secondClassRegularPriceCounter = 0;
+thirdClassChildPrice = 0;    thirdClassChildCounter = 0;
+thirdClassRegularPrice = 0;   thirdClassRegulerPriceCounter = 0;
+
+for counter = 1:1:n
+    if(passengerData_av.pclass(counter) == 1 && passengerData_av.age(counter)<= 17)
+        firstClassChildPriceCounter = firstClassChildPriceCounter + 1;
+        firstClassChildPrice = nansum(passengerData_av.fare(counter))+firstClassChildPrice;
+    end
+    
+    if(passengerData_av.pclass(counter) == 1 && passengerData_av.age(counter)>= 18)
+        firstClassRegularPriceCounter = firstClassRegularPriceCounter + 1;
+        firstClassRegularPrice = nansum(passengerData_av.fare(counter))+firstClassRegularPrice;
+    end
+
+     if(passengerData_av.pclass(counter) == 2 && passengerData_av.age(counter)<= 17)
+        secondClassChildPriceCounter = secondClassChildPriceCounter + 1;
+        secondClassChildPrice = nansum(passengerData_av.fare(counter))+secondClassChildPrice;
+    end
+    
+    if(passengerData_av.pclass(counter) == 2 && passengerData_av.age(counter)>= 18)
+        secondClassRegularPriceCounter = secondClassRegularPriceCounter + 1;
+        secondClassRegularPrice = nansum(passengerData_av.fare(counter))+secondClassRegularPrice;
+    end
+    
+     if(passengerData_av.pclass(counter) == 3 && passengerData_av.age(counter)<= 17)
+        thirdClassChildCounter = thirdClassChildCounter + 1;
+        thirdClassChildPrice = nansum(passengerData_av.fare(counter))+thirdClassChildPrice;
+    end
+    
+    if(passengerData_av.pclass(counter) == 3 && passengerData_av.age(counter)>= 18)
+        thirdClassRegulerPriceCounter = thirdClassRegulerPriceCounter + 1 ;
+        thirdClassRegularPrice = nansum(passengerData_av.fare(counter))+thirdClassRegularPrice;
+    end
+
+end
+%Average Regular and Child Price List According to Class Type
+firstClassChildPrice = firstClassChildPrice / firstClassChildPriceCounter;
+firstClassRegularPrice = firstClassRegularPrice / firstClassRegularPriceCounter;
+secondClassChildPrice = secondClassChildPrice / secondClassChildPriceCounter;
+secondClassRegularPrice = secondClassRegularPrice / secondClassRegularPriceCounter;
+thirdClassChildPrice = thirdClassChildPrice / thirdClassChildCounter;
+thirdClassRegularPrice = thirdClassRegularPrice / thirdClassRegulerPriceCounter;
+
+% if (passengerData_av.Properties.VariableNames{colIdx} == "fare" ) -->
+% I prefer to loop in coloumb as well to find where the fare is. It comes
+% to more reliable and more data irrelevant code. However, this time I did
+% not want to fatigue the code at all due to performance
+for rowIdx = 1:1:n
+    if(isnan(passengerData_av.fare(rowIdx)))
+        flagFareRw = rowIdx;
+        flagFareCl = 9;
+        if(passengerData_av.pclass(rowIdx) == 1 && passengerData_av.age(counter)<= 17) 
+            passengerData_av.fare(rowIdx) = firstClassChildPrice;
+        end
+        
+        if(passengerData_av.pclass(rowIdx) == 1 && passengerData_av.age(counter)>= 18)
+             passengerData_av.fare(rowIdx) = firstClassRegularPrice;
+        end
+         
+        if(passengerData_av.pclass(rowIdx) == 2 && passengerData_av.age(counter)<= 17) 
+            passengerData_av.fare(rowIdx) = secondClassChildPrice ; 
+        end
+        
+        if(passengerData_av.pclass(rowIdx) == 2 && passengerData_av.age(counter)>= 18)
+             passengerData_av.fare(rowIdx) = secondClassRegularPrice ; 
+        end
+         
+         if(passengerData_av.pclass(rowIdx) == 3 && passengerData_av.age(counter)<= 17) 
+            passengerData_av.fare(rowIdx) = thirdClassChildPrice ;
+        end
+        
+        if(passengerData_av.pclass(rowIdx) == 3 && passengerData_av.age(counter)>= 18)
+            passengerData_av.fare(rowIdx) = thirdClassRegularPrice ; 
+        end
+         
+         
+    end
+end
+
+
+        
+        if(isNanAgeTable.sibsp(iNanr) == spareAverageTable.sibsp(iNanc)) % Sibsp
+            relationPoint = relationPoint + 2 ;
+        end
+        
+        if(isNanAgeTable.parch(iNanr) == spareAverageTable.parch(iNanc)) %Parch
+            relationPoint = relationPoint + 2 ;
+        end
+        relationPointMatrix(iNanr,iNanc) = relationPoint;
+        relationPoint = 0;
+    end
+end
+
+[n, m] = size(passengerData);
+insideRowCounter = 1;
+insideColCounter = 1;
+for colIdx = 1:m
+    for rowIdx = 1:n
+        
+   if (passengerData_av.Properties.VariableNames{colIdx} == "age" )
+       
+       %This piece of code looking the all data and finding
+       %Nan-Values,then looking the relationPointMatrix and just find the
+       %first maximum relation data point index value to
+       %assign our missing value
+      
+      if(isnan(passengerData_av.age(rowIdx)))
+          [val, idxNanAge] = max(relationPointMatrix(insideRowCounter,:));
+          passengerData_av.age(rowIdx) = spareAverageTable.age(idxNanAge);
+          insideRowCounter = insideRowCounter + 1 ;
+      end
+     
+   end
+    end
+end
+
+if(nnz(isnan(passengerData_av.age)))
+display('ERROR AGE HAS A NAN VALUE')
+end
+passengerData_av
+
+Note : Rest of the code can be found in mlx file.
